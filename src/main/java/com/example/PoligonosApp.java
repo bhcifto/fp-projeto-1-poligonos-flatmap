@@ -85,16 +85,22 @@ public class PoligonosApp extends Application {
         final var root = new Pane();
         final var scene = new Scene(root, 800, 600);
 
-        for (final var listaPontos : pontosPoligonos) {
-            final var poligono = new Polygon();
-            for (final Point point : listaPontos) {
-                poligono.getPoints().addAll(point.x(), point.y());
-            }
+        final List<Polygon> poligonosParaDesenhar = pontosPoligonos.stream()
+                .map(listaPontos -> {
+                    final double[] coordenadas = listaPontos.stream()
+                            .flatMapToDouble(p -> java.util.stream.DoubleStream.of(p.x(), p.y()))
+                            .toArray();
 
-            poligono.setFill(Color.BLUE);
-            poligono.setStroke(Color.BLACK);
-            root.getChildren().add(poligono);
-        }
+                    final var poligono = new Polygon(coordenadas);
+
+                    poligono.setFill(Color.BLUE);
+                    poligono.setStroke(Color.BLACK);
+
+                    return poligono;
+                })
+                .toList();
+
+        root.getChildren().addAll(poligonosParaDesenhar);
 
         final List<String> perimetros = perimetros().stream().map(p -> String.format("%.1f", p)).toList();
         final var label1 = newLabel("Perímetro dos Polígonos: " + perimetros, 500);
